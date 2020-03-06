@@ -18,7 +18,9 @@ class IndexView(generic.ListView):
         published in the future).
         """
         return Question.objects.filter(
-            pub_date__lte=timezone.now()
+            pub_date__lte=timezone.now(),
+        ).exclude(
+            choice__isnull = True,
         ).order_by('-pub_date')[:5]
 
 class DetailView(generic.DetailView):
@@ -29,11 +31,25 @@ class DetailView(generic.DetailView):
         """
         Excludes any questions that aren't published yet.
         """
-        return Question.objects.filter(pub_date__lte=timezone.now())
+        return Question.objects.filter(
+            pub_date__lte=timezone.now(),
+        ).exclude(
+            choice__isnull = True,
+        )
 
 class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
+
+    def get_queryset(self):
+        """
+        Excludes any questions that aren't published yet.
+        """
+        return Question.objects.filter(
+            pub_date__lte=timezone.now(),
+        ).exclude(
+            choice__isnull = True,
+        )
 
 def vote(request,question_id):
     question = get_object_or_404(Question, pk = question_id)
